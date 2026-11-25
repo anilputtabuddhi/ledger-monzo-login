@@ -1,0 +1,48 @@
+<!doctype html>
+<!--
+  Monzo's login redirect for Ledger. Monzo only sends https links in its login
+  emails, so it sends the user here, and this page hands the login back to the app
+  as ledger://monzo-login?code=…&state=…. Nothing is stored or sent anywhere else.
+  Publish this file at the address in MonzoClientDetails.redirectURL.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Back to Ledger</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #f5f5f7; --fg: #1d1d1f; --muted: #6e6e73; --accent: #0a84ff; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #000; --fg: #f5f5f7; --muted: #a1a1a6; } }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg);
+           font: 17px/1.4 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+    main { max-width: 22rem; padding: 0 16px; text-align: center; }
+    h1 { font-size: 1.4rem; margin: 0 0 .5rem; }
+    p { color: var(--muted); margin: 0 0 1.5rem; }
+    a { display: inline-block; padding: .75rem 1.5rem; border-radius: 999px; background: var(--accent);
+        color: #fff; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Back to Ledger</h1>
+    <p id="message">Opening Ledger to finish connecting Monzo…</p>
+    <a id="open" href="#">Open Ledger</a>
+  </main>
+  <script>
+    // Only the login's code and state go to the app: nothing else from the address.
+    const query = new URLSearchParams(location.search);
+    const code = query.get("code"), state = query.get("state");
+    const open = document.getElementById("open");
+    if (code && state) {
+      const target = "ledger://monzo-login?" + new URLSearchParams({ code, state }).toString();
+      open.href = target;
+      location.replace(target);
+    } else {
+      document.getElementById("message").textContent =
+        "This link is missing Monzo's login details. Start again from Ledger's Bank Connections screen.";
+      open.style.display = "none";
+    }
+  </script>
+</body>
+</html>
